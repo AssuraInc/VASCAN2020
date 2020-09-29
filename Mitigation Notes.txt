@@ -1,0 +1,58 @@
+Disable IPv6
+	
+	Windows does not recommend disabling IPv6. If you aren't actively using it then it is a good practice to disable it. Create a new GPO for a registry entry. Add a 	new DWORD-32 entry for "DisabledComponents" in HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters. Provide that new DWORD a value of 	0xffffffff. You can also create firewall rules to block all IPv6 Traffic if you prefer to go that route instead. Additionally, if you prefer to use GPO templates, 	Microsoft's technet has a good article on disabling IPv6 with provided templates here: 
+	https://social.technet.microsoft.com/wiki/contents/articles/5927.how-to-disable-ipv6-through-group-policy.aspx
+
+Disable the ability for computers to create their own accounts
+
+	Create an ACE to deny computers from being able to write to the msDS-AllowedToActOnBehalfOfOtherIdentity attributes themselves.
+
+
+Detect changes to msDS-AllowedToActOnBehalfOfOtherIdentity 
+	
+	Create a new System Access Control List (SACL) rule to log attempts to change this attribute
+
+Detect DCSync  
+
+	On DC enable Local Security Policy > Advanced Audit Policy Configuration > System Audit Policies - Local Group Policy Object > Object Access > Audit Registry set 	to Success and Failure. This generates an event ID 4663. This can be enabled on desktops via a GPO to detect local SAM/LSA dumps as well.
+
+	Event ID 4662 in the subcategory Audit Directory Service Access audits basic information about users performing operations within Active Directory for events 	specified in an object’s system access-control list (SACL). Using this event, it is possible to see when a user exercises their Replicating Directory Changes All 	extended right by filtering the	properties field to include {1131f6ad-9c07-11d1-f79f-00c04fc2dcd2} which is the control access rights GUID for replicating 	directory changes. However, Active Directory event logs only reveal which objects were replicated when diagnostic logging is enabled. Diagnostic logging can have 	performance impact and is not likely suitable for long-term production use.
+
+
+Disable WPAD:
+
+	Disable WPAD via Group Policy by deploying the following:
+
+	HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings\Wpad
+	New DWORD (32-Bit Value) called “WpadOverride” and set to “1”
+	
+	Disable the service “WinHTTP Web Proxy Auto-Discovery Service”
+
+	Computer Configuration/Policies/Windows Settings/Security Settings/System Services
+
+Disable LLMNR:
+	
+	In a nutshell, Link-Local Multicast Name Resolution (LLMNR) resolves single label names (like: COMPUTER1), on the local subnet, when DNS devolution is unable to 	resolve the name. This is helpful if you are in an Ad-Hoc network scenario, or in a scenario where DNS entries do not include hosts on the local subnet.LLMNR 		should be disabled if not used since disabling it removes a method Responder uses for passive credential theft.
+	
+	Group Policy>Computer Configuration/AdministrativeTemplates/Network/DNS Client
+
+	Set “Turn Off Multicast Name Resolution” to “Enabled”
+
+Disable NetBIOS via (Microsoft) DHCP:
+
+	Open Microsoft DHCP.
+
+	In the navigation pane, expand SERVERNAME, expand Scope, right-click Scope Options, and then click Configure Options.
+	Click the Advanced tab, and then click Microsoft Windows 2000 Options in the Vendor class list.
+	Make sure that Default User Class is selected in the User class list.
+	Click to select the 001 Microsoft Disable Netbios Option check box, under the Available Options column.
+	In the Data entry area, type 0x2 in the Long box, and then click OK.
+
+	On Linux/Unix based DHCP servers, setting option 43 configures DHCP to disable NetBIOS
+
+	option 43 hex 0104.0000.0002
+
+	Disable NetBIOS via Computer:
+	Go to the properties of all network devices on the computer, TCPIPv4 Properties, Advanced, WINS, Disable NetBIOS over TCP/IP
+
+
