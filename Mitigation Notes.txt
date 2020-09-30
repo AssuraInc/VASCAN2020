@@ -14,6 +14,8 @@ Detect changes to msDS-AllowedToActOnBehalfOfOtherIdentity
 
 Detect DCSync  
 
+	Enable advanced security auditing on winreg > within registry editor navigate to HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurePipeServers\winreg 	right-click and select permissions > advanced > auditing tab > select Add > set principle to "Everyone" > Ok > Apply > Ok 
+	
 	On DC enable Local Security Policy > Advanced Audit Policy Configuration > System Audit Policies - Local Group Policy Object > Object Access > Audit Registry set 	to Success and Failure. This generates an event ID 4663. This can be enabled on desktops via a GPO to detect local SAM/LSA dumps as well.
 
 	Event ID 4662 in the subcategory Audit Directory Service Access audits basic information about users performing operations within Active Directory for events 	specified in an object’s system access-control list (SACL). Using this event, it is possible to see when a user exercises their Replicating Directory Changes All 	extended right by filtering the	properties field to include {1131f6ad-9c07-11d1-f79f-00c04fc2dcd2} which is the control access rights GUID for replicating 	directory changes. However, Active Directory event logs only reveal which objects were replicated when diagnostic logging is enabled. Diagnostic logging can have 	performance impact and is not likely suitable for long-term production use.
